@@ -1,37 +1,62 @@
+"""Exemplo de persistência com SQLite usando somente dados fictícios."""
+
 import sqlite3
+from pathlib import Path
 
-conn = sqlite3.connect("Contatos.db")
+DB_PATH = Path(__file__).with_name("contatos.db")
 
-cursor = conn.cursor()
-
-cursor.execute(''' CREAT_TABLE IF NOT EXISTS Contatos(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        e-mail TEXT,
-        telefone TEXT
-    )
-    ''')
-
-dados = [
-    ("Guilherme", "cardozoalmeidaguilherme@gmail.com", "(31) 994483976")
-    ("Wanessa", "wanealmeida@gmail.com", "(31) 987584899")
-    ("Arthur", "arthurar2016@gmail.com", "(31) 9600-8028")
+CONTATOS_EXEMPLO = [
+    ("Ana Silva", "ana.silva@example.com", "(11) 90000-0001"),
+    ("Bruno Souza", "bruno.souza@example.com", "(21) 90000-0002"),
+    ("Carla Lima", "carla.lima@example.com", "(31) 90000-0003"),
 ]
 
-cursor.executemany('INSERT INTO Contatos (nome, email, telefone) VALUES (?, ?, ?)', dados)
 
-conn.commit()
+def criar_tabela(conexao: sqlite3.Connection) -> None:
+    """Cria a tabela de contatos caso ela ainda não exista."""
+    conexao.execute(
+        """
+        CREATE TABLE IF NOT EXISTS contatos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            telefone TEXT NOT NULL
+        )
+        """
+    )
 
-cursor.execute('SELECT * FROM Contatos')
 
-contatos = cursor.fetchall()
+def inserir_contatos(
+    conexao: sqlite3.Connection,
+    contatos: list[tuple[str, str, str]],
+) -> None:
+    """Insere os contatos sem duplicar endereços de e-mail."""
+    conexao.executemany(
+        """
+        INSERT OR IGNORE INTO contatos (nome, email, telefone)
+        VALUES (?, ?, ?)
+        """,
+        contatos,
+    )
 
-print("Contatos: ")
 
-for contato in contatos:
+def listar_contatos(conexao: sqlite3.Connection) -> list[tuple]:
+    """Retorna todos os contatos em ordem alfabética."""
+    cursor = conexao.execute(
+        "SELECT id, nome, email, telefone FROM contatos ORDER BY nome"
+    )
+    return cursor.fetchall()
 
-    print(contato)
 
-conn.commit()
+def main() -> None:
+    with sqlite3.connect(DB_PATH) as conexao:
+        criar_tabela(conexao)
+        inserir_contatos(conexao, CONTATOS_EXEMPLO)
 
-conn.close()
+        print("Contatos cadastrados:")
+        for contato_id, nome, email, telefone in listar_contatos(conexao):
+            print(f"{contato_id}: {nome} | {email} | {telefone}")
+
+
+if __name__ == "__main__":
+    main()
