@@ -1,0 +1,18 @@
+# Ambientes virtuais
+.venv/
+venv/
+
+# Cache e arquivos compilados
+__pycache__/
+*.py[cod]
+
+# Bancos e dados locais
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE e sistema operacional
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
