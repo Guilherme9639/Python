@@ -1,23 +1,52 @@
-#Exercicio de criação de uma classificação de filmes#
+"""Permite avaliar uma lista de filmes com notas de 1 a 5."""
 
-filmes = ["Interinstelar", "Fragmentado", "Divertidamente", "Lagoa Azul", "Vingadores"]
+FILMES = [
+    "Interestelar",
+    "Fragmentado",
+    "Divertida Mente",
+    "A Lagoa Azul",
+    "Vingadores",
+]
 
-print("Bem vindo a classificação de filmes!")
-print("Você tem até 5 filmes para classificar.")
-print("Caso deseje sair sair da avaliação, digite 0 a qualquer momento.")
 
-for filme in filmes:
-    classificacao = input(f"Digite aqui um valor de 1 a 5 para classificar o filme '{filme}' ou 0 para parar. ")
+def solicitar_avaliacao(filme: str) -> int:
+    """Solicita uma avaliação válida ou zero para encerrar."""
+    while True:
+        resposta = input(
+            f"Avalie '{filme}' de 1 a 5 ou digite 0 para encerrar: "
+        )
+        try:
+            nota = int(resposta)
+        except ValueError:
+            print("Digite somente números inteiros.")
+            continue
 
-    if classificacao == "0":
-        print("Que pena que você não irá classificar mais os filmes, até logo!")
-        break
-classificacao = int(classificacao)
-#para transformar o numero de classificação em inteiro caso alguem coloque falor float.
+        if 0 <= nota <= 5:
+            return nota
+        print("A nota deve estar entre 1 e 5, ou ser 0 para encerrar.")
 
-if classificacao < 1 or classificacao > 5:
-        print("Por favor, digite uma classificação válida de 1 a 5.")
-else:
-        print(f"Você classificou '{filme}' com '{classificacao}' estrelas. \n")
 
-print("Obrigado por classificar os filmes, volte sempre!")
+def main() -> None:
+    avaliacoes: dict[str, int] = {}
+
+    print("Bem-vindo à avaliação de filmes!")
+
+    for filme in FILMES:
+        nota = solicitar_avaliacao(filme)
+        if nota == 0:
+            print("Avaliação encerrada.")
+            break
+
+        avaliacoes[filme] = nota
+        print(f"Você avaliou '{filme}' com {nota} estrela(s).")
+
+    print("\nResumo das avaliações:")
+    if not avaliacoes:
+        print("Nenhum filme foi avaliado.")
+    else:
+        for filme, nota in avaliacoes.items():
+            print(f"- {filme}: {nota}/5")
+
+
+if __name__ == "__main__":
+    main()
